@@ -55,28 +55,28 @@ The checklist below is the owner's. A self-hosted copy follows the same steps wi
 1. **Repository.** Create the public `uzairansaruzi/hermex-stats` repository and push this one to it.
 2. **Wrangler.** Run `npx wrangler login`, then `npm ci`.
 3. **D1.** Run `npx wrangler d1 create hermex-stats`. Copy the printed `database_id` into `wrangler.jsonc`, replacing the zeros.
-4. **Hostname.** The Worker serves only its custom domain (`workers_dev` and preview URLs are off), so every report passes the zone's rate limiting rule. `wrangler.jsonc` uses `stats.hermexapp.com`, which needs `hermexapp.com` to be a zone on this account. If it is not, pick a hostname on a zone that is and change `routes`. The first deploy creates the DNS record.
+4. **Hostname.** The Worker serves only its custom domain (`workers_dev` and preview URLs are off), so every report passes the zone's rate limiting rule. `wrangler.jsonc` uses `hermex-stats.uzairansar.com`, which needs `uzairansar.com` to be a zone on this account. If it is not, pick a hostname on a zone that is and change `routes`. The first deploy creates the DNS record.
 5. **Cloudflare Access** (Zero Trust → Access → Applications). The Zero Trust Free plan covers up to 50 users; confirm the account is enrolled on it.
-   1. Add a **self-hosted** application named `Hermex stats dashboard` for `stats.hermexapp.com` with no path, so it covers the whole hostname. Policy: **Allow**, include your own email. Copy its **Application Audience (AUD) tag**.
-   2. Add a second self-hosted application named `Hermex stats reports` for `stats.hermexapp.com` with path `v1/report`. Policy: **Bypass**, include **Everyone**. Phones post here without signing in.
+   1. Add a **self-hosted** application named `Hermex stats dashboard` for `hermex-stats.uzairansar.com` with no path, so it covers the whole hostname. Policy: **Allow**, include your own email. Copy its **Application Audience (AUD) tag**.
+   2. Add a second self-hosted application named `Hermex stats reports` for `hermex-stats.uzairansar.com` with path `v1/report`. Policy: **Bypass**, include **Everyone**. Phones post here without signing in.
    3. In `wrangler.jsonc`, set `ACCESS_TEAM_DOMAIN` to your team domain (`<team>.cloudflareaccess.com`, from Zero Trust → Settings → Custom Pages) and `ACCESS_AUD` to the dashboard application's AUD tag. Both are public values. With either empty, the dashboard refuses every request.
-6. **Rate limiting** (the `hermexapp.com` zone → Security → WAF → Rate limiting rules → Create rule). Name `Hermex stats reports`. Expression: `(http.host eq "stats.hermexapp.com" and http.request.uri.path eq "/v1/report")`. Counting by IP (the only choice on the Free plan), 10 requests per 10 seconds, action **Block** for 10 seconds. A phone sends one report a week and never retries, so this only stops floods.
+6. **Rate limiting** (the `uzairansar.com` zone → Security → WAF → Rate limiting rules → Create rule). Name `Hermex stats reports`. Expression: `(http.host eq "hermex-stats.uzairansar.com" and http.request.uri.path eq "/v1/report")`. Counting by IP (the only choice on the Free plan), 10 requests per 10 seconds, action **Block** for 10 seconds. A phone sends one report a week and never retries, so this only stops floods.
 7. **Logging off.** Leave `observability` and `logpush` disabled in `wrangler.jsonc`. After deploying, confirm in Workers & Pages → `hermex-stats` → Settings → Observability that Workers Logs and Traces are off, that no Logpush job targets this Worker, and never run `wrangler tail` against it.
 8. **Deploy.** Run `npm run check` and `npm run deploy:dry-run`, then `npm run deploy`. The script checks again, applies the D1 migrations to the remote database, and deploys.
 9. **Smoke.** Post a test report in a week no phone will send, and confirm it lands:
 
    ```sh
    node -e 'const r = require("./test/example-report.json"); r.week = "2000-W01"; console.log(JSON.stringify(r))' |
-     curl -si https://stats.hermexapp.com/v1/report -H 'content-type: application/json' --data-binary @-
+     curl -si https://hermex-stats.uzairansar.com/v1/report -H 'content-type: application/json' --data-binary @-
    ```
 
-   Expect `HTTP/2 204`. Open `https://stats.hermexapp.com/?weeks=520` in a browser, sign in through Access, and find `2000-W01`. Then delete the test row:
+   Expect `HTTP/2 204`. Open `https://hermex-stats.uzairansar.com/?weeks=520` in a browser, sign in through Access, and find `2000-W01`. Then delete the test row:
 
    ```sh
    npx wrangler d1 execute hermex-stats --remote --command "DELETE FROM reports WHERE week = '2000-W01'"
    ```
 
-10. **Hand the URL to the app.** Record `https://stats.hermexapp.com/v1/report` on [hermex#1659](https://github.com/uzairansaruzi/hermex/issues/1659); the app builds it in as a fixed address.
+10. **Hand the URL to the app.** Record `https://hermex-stats.uzairansar.com/v1/report` on [hermex#1659](https://github.com/uzairansaruzi/hermex/issues/1659); the app builds it in as a fixed address.
 
 ## License
 

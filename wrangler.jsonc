@@ -7,10 +7,10 @@
   // Only the custom domain serves traffic, so every report passes the zone's rate limiting rule.
   "workers_dev": false,
   "preview_urls": false,
-  "routes": [{ "pattern": "stats.hermexapp.com", "custom_domain": true }],
+  "routes": [{ "pattern": "hermex-stats.uzairansar.com", "custom_domain": true }],
   "d1_databases": [
     // Replace database_id with the ID `wrangler d1 create hermex-stats` prints.
-    { "binding": "DB", "database_name": "hermex-stats", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+    { "binding": "DB", "database_name": "hermex-stats", "database_id": "06520fd8-f236-4beb-b41c-b4e9d4b9c4a3", "migrations_dir": "migrations" }
   ],
   "vars": {
     // The Zero Trust team domain and the dashboard Access application's Audience (AUD) tag.
