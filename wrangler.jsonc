@@ -14,8 +14,8 @@
   ],
   "vars": {
     // The Zero Trust team domain and the dashboard Access application's Audience (AUD) tag.
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    "ACCESS_TEAM_DOMAIN": "uzairansar.cloudflareaccess.com",
+    "ACCESS_AUD": "7c677a0318ba4e7f94c6fe3ba03b244ad2a14926e6cb367c7ca51dbabb43afda"
   },
   // Request logs would hold the connecting address. Keep logs, traces and Logpush off.
   "observability": { "enabled": false, "logs": { "enabled": false }, "traces": { "enabled": false } },
