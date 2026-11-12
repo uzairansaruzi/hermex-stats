@@ -1,0 +1,58 @@
+{
+  "v": 1,
+  "week": "2026-W46",
+  "channel": "appstore",
+  "app_version": "1.9.0",
+  "os_version": "26.1",
+  "device_model": "iPhone17,2",
+  "language": "en",
+  "region": "US",
+  "install_day": "2026-03-04",
+  "days_active": 5,
+  "first_report_of_month": true,
+  "servers": {
+    "hermes": 1,
+    "webui": 1,
+    "versions": [
+      {
+        "kind": "hermes",
+        "version": "0.14.2"
+      },
+      {
+        "kind": "webui",
+        "version": "unknown"
+      }
+    ]
+  },
+  "completed_responses": 42,
+  "features": {
+    "workspace": true,
+    "tasks": false,
+    "skills": false,
+    "memory": false,
+    "insights": true,
+    "kanban": false,
+    "bots": true,
+    "share_extension": false,
+    "home_widget": false,
+    "live_activity": true,
+    "voice_input": false,
+    "app_intents": false
+  },
+  "settings": {
+    "push_enabled": true,
+    "app_lock": false
+  },
+  "cards": {
+    "tip": {
+      "shown": true,
+      "dismissed": false,
+      "link_opened": false
+    },
+    "star": {
+      "shown": false,
+      "dismissed": false,
+      "link_opened": false
+    }
+  }
+}

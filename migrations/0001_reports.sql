@@ -1,0 +1,45 @@
+-- One row per accepted report. Later format versions add nullable columns; rows are never rewritten.
+-- There is deliberately no column for an address, device identifier or arrival time finer than a day.
+CREATE TABLE reports (
+  id INTEGER PRIMARY KEY,
+  received_day TEXT NOT NULL,
+  country TEXT,
+  v INTEGER NOT NULL,
+  week TEXT NOT NULL,
+  channel TEXT NOT NULL,
+  app_version TEXT NOT NULL,
+  os_version TEXT NOT NULL,
+  device_model TEXT NOT NULL,
+  language TEXT NOT NULL,
+  region TEXT NOT NULL,
+  install_day TEXT NOT NULL,
+  days_active INTEGER NOT NULL,
+  first_report_of_month INTEGER NOT NULL,
+  servers_hermes INTEGER NOT NULL,
+  servers_webui INTEGER NOT NULL,
+  -- JSON array of {kind, version}, as sent.
+  server_versions TEXT NOT NULL,
+  completed_responses INTEGER NOT NULL,
+  feature_workspace INTEGER NOT NULL,
+  feature_tasks INTEGER NOT NULL,
+  feature_skills INTEGER NOT NULL,
+  feature_memory INTEGER NOT NULL,
+  feature_insights INTEGER NOT NULL,
+  feature_kanban INTEGER NOT NULL,
+  feature_bots INTEGER NOT NULL,
+  feature_share_extension INTEGER NOT NULL,
+  feature_home_widget INTEGER NOT NULL,
+  feature_live_activity INTEGER NOT NULL,
+  feature_voice_input INTEGER NOT NULL,
+  feature_app_intents INTEGER NOT NULL,
+  setting_push_enabled INTEGER NOT NULL,
+  setting_app_lock INTEGER NOT NULL,
+  card_tip_shown INTEGER NOT NULL,
+  card_tip_dismissed INTEGER NOT NULL,
+  card_tip_link_opened INTEGER NOT NULL,
+  card_star_shown INTEGER NOT NULL,
+  card_star_dismissed INTEGER NOT NULL,
+  card_star_link_opened INTEGER NOT NULL
+);
+
+CREATE INDEX reports_week ON reports (week);
