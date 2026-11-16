@@ -85,6 +85,16 @@ it('rejects a report that does not match the contract exactly and stores nothing
   expect(await rows()).toEqual([]);
 });
 
+it('accepts format 2 only with each server\'s gateway, and format 1 only without', async () => {
+  const withGateway = report.servers.versions.map((entry, index) => ({ ...entry, gateway: index ? 'unknown' : 'webapp' }));
+  const v2 = { ...report, v: 2, servers: { ...report.servers, versions: withGateway } };
+  expect((await post({ ...v2, servers: report.servers })).status).toBe(400);
+  expect((await post({ ...report, servers: v2.servers })).status).toBe(400);
+  expect((await post(v2)).status).toBe(204);
+  const [row] = await rows();
+  expect(JSON.parse(String(row?.server_versions))).toEqual(withGateway);
+});
+
 it('refuses a body over 8 KB', async () => {
   const response = await post({ ...report, padding: 'x'.repeat(8 * 1024) });
   expect(response.status).toBe(413);

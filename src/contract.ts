@@ -22,8 +22,12 @@ const featureSchema = z.strictObject({
 export type Feature = keyof typeof featureSchema.shape;
 export const features = Object.keys(featureSchema.shape) as Feature[];
 
-const reportV1 = z.strictObject({
-  v: z.literal(1),
+const serverKind = z.enum(['hermes', 'webui']);
+const serverVersion = z.union([release('1,3'), z.enum(['other', 'unknown'])]);
+
+/** One format's schema; formats differ only in `v` and each server entry. */
+const reportSchema = <V extends number, E extends z.ZodRawShape>(v: V, entry: E) => z.strictObject({
+  v: z.literal(v),
   week: z.string().regex(/^\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])$/),
   channel: z.enum(['appstore', 'testflight']),
   app_version: release('1,2'),
@@ -37,10 +41,7 @@ const reportV1 = z.strictObject({
   servers: z.strictObject({
     hermes: count(99),
     webui: count(99),
-    versions: z.array(z.strictObject({
-      kind: z.enum(['hermes', 'webui']),
-      version: z.union([release('1,3'), z.enum(['other', 'unknown'])]),
-    })).max(20),
+    versions: z.array(z.strictObject(entry)).max(20),
   }),
   completed_responses: count(100_000),
   features: featureSchema,
@@ -48,8 +49,12 @@ const reportV1 = z.strictObject({
   cards: z.strictObject({ tip: card, star: card }),
 });
 
+const reportV1 = reportSchema(1, { kind: serverKind, version: serverVersion });
+/** Format 2 (hermex#1724) adds what each server's last sign-in reached. */
+const reportV2 = reportSchema(2, { kind: serverKind, version: serverVersion, gateway: z.enum(['webapp', 'dashboard', 'unknown']) });
+
 /** Every format version still in use, chosen by `v`. A new version appends its schema here. */
-const report = z.discriminatedUnion('v', [reportV1]);
+const report = z.discriminatedUnion('v', [reportV1, reportV2]);
 export type Report = z.infer<typeof report>;
 
 /** The parsed report, or null when it matches no supported version exactly. */

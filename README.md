@@ -34,7 +34,7 @@ Every route except `POST /v1/report` checks the Cloudflare Access token itself (
 
 ## Dashboard
 
-One server-rendered page of plain tables with inline bars: reports received per week and month, retention by install week, Hermes versus webui and server versions, feature usage grouped by Hermes-only, webui-only and mixed phones, the tip and star card funnel, app and iOS versions, completed responses per week, and server counts. Every count is labelled "reports received": nothing proves two reports came from different phones.
+One server-rendered page of plain tables with inline bars: reports received per week and month, retention by install week, Hermes versus webui, server versions and Hermes server gateways, feature usage grouped by Hermes-only, webui-only and mixed phones, the tip and star card funnel, app and iOS versions, completed responses per week, and server counts. Every count is labelled "reports received": nothing proves two reports came from different phones.
 
 ## Run locally
 
