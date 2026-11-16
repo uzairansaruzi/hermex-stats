@@ -67,13 +67,16 @@ export async function renderDashboard(db: D1Database, url: URL): Promise<Respons
   if (!since) return page(scope, '<p>No reports received yet.</p>');
 
   const query = <T>(sql: string) => db.prepare(sql).bind(since).all<T>().then(result => result.results);
-  const [weekly, cohorts, versions, appVersions, osVersions, serverCounts, byGroup, [cardTotals]] = await Promise.all([
+  const [weekly, cohorts, versions, gateways, appVersions, osVersions, serverCounts, byGroup, [cardTotals]] = await Promise.all([
     query<WeekRow>(`SELECT week, COUNT(*) AS reports, SUM(first_report_of_month) AS first_of_month, SUM(completed_responses) AS responses,
       ${groups.map(group => `SUM(${groupSql} = '${group}') AS ${group}`).join(', ')}
       FROM reports WHERE week >= ? GROUP BY week ORDER BY week DESC`),
     query<CohortRow>('SELECT install_day, week, COUNT(*) AS reports FROM reports WHERE week >= ? GROUP BY install_day, week'),
     query<VersionRow>(`SELECT json_extract(entry.value, '$.kind') AS kind, json_extract(entry.value, '$.version') AS version, COUNT(DISTINCT reports.id) AS reports
       FROM reports, json_each(reports.server_versions) AS entry WHERE week >= ? GROUP BY kind, version ORDER BY kind, reports DESC`),
+    query<CountRow>(`SELECT COALESCE(json_extract(entry.value, '$.gateway'), 'not reported (format 1)') AS label, COUNT(DISTINCT reports.id) AS reports
+      FROM reports, json_each(reports.server_versions) AS entry WHERE week >= ? AND json_extract(entry.value, '$.kind') = 'hermes'
+      GROUP BY label ORDER BY reports DESC`),
     query<CountRow>(`SELECT channel || ' ' || app_version AS label, COUNT(*) AS reports FROM reports WHERE week >= ? GROUP BY label ORDER BY reports DESC`),
     query<CountRow>('SELECT os_version AS label, COUNT(*) AS reports FROM reports WHERE week >= ? GROUP BY label ORDER BY reports DESC'),
     query<CountRow>(`SELECT CASE WHEN servers_hermes + servers_webui >= 5 THEN '5 or more' ELSE CAST(servers_hermes + servers_webui AS TEXT) END AS label,
@@ -120,6 +123,8 @@ export async function renderDashboard(db: D1Database, url: URL): Promise<Respons
   for (const kind of kinds) {
     sections.push(spread(`${kind === 'hermes' ? 'Hermes' : 'webui'} server versions`, versions.filter(row => row.kind === kind).map(row => ({ label: row.version, reports: row.reports }))));
   }
+
+  if (gateways.length) sections.push(spread('Hermes server gateways', gateways));
 
   const groupTotals = new Map(byGroup.map(row => [row.grp, row]));
   const shownGroups = groups.filter(group => groupTotals.has(group));
